@@ -213,6 +213,7 @@ type SolrResponse struct {
 }
 type SolrInfo struct {
 	QueryHandler SolrQueryHandler `xml:"QUERYHANDLER"`
+	UpdateHandler SolrQueryHandler `xml:"UPDATEHANDLER"`
 }
 type SolrQueryHandler struct {
 	QueryHandlerInfo []SolrQueryHandlerInfo `xml:"entry"`
@@ -251,8 +252,18 @@ func (ds *MetricsDataSource) QueryData() (SolrStatisticData, error) {
 		return nil, err
 	}
 
-	data := make(SolrStatisticData, len(response.SolrInfo.QueryHandler.QueryHandlerInfo))
-	for _, handler := range response.SolrInfo.QueryHandler.QueryHandlerInfo {
+    queryHandlersData := parseQueryHandlers(response.SolrInfo.QueryHandler.QueryHandlerInfo)
+    updateHandlerData := parseQueryHandlers(response.SolrInfo.UpdateHandler.QueryHandlerInfo)
+	for k, v := range updateHandlerData {
+		fmt.Printf("key:%v, value:%#v\n", k, v)
+	}
+    
+	return queryHandlersData, nil
+}
+
+func parseQueryHandlers(queryHandlerInfo []SolrQueryHandlerInfo) SolrStatisticData {
+	data := make(SolrStatisticData, len(queryHandlerInfo))
+	for _, handler := range queryHandlerInfo {
 		stat := NewSolrHandlerStat(handler.ClassName)
 		if stat == nil {
 			continue
@@ -264,8 +275,7 @@ func (ds *MetricsDataSource) QueryData() (SolrStatisticData, error) {
 		}
 		data[stat.GetName()] = stat
 	}
-
-	return data, nil
+    return data
 }
 
 func main() {
