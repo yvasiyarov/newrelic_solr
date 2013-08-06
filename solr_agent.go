@@ -353,6 +353,45 @@ func parseQueryHandlers(queryHandlerInfo []SolrQueryHandlerInfo, data SolrStatis
 	}
 }
 
+type SolrSystemResponse struct {
+	Info []SolrSystemInfoItem `xml:"lst"`
+}
+type SolrSystemInfoItem struct {
+    ItemName string `xml:"name,attr"`
+    IntValues []SolrSystemInfoItemValue `xml:"long"`
+    MemoryValues []SolrSystemInfoItemValue `xml:"lst>str"`
+}
+type SolrSystemInfoItemValue struct {
+    ValueName string `xml:"name,attr"`
+    Value string `xml:",innerxml"`
+}
+
+func (ds *MetricsDataSource) QuerySystemData() (SolrStatisticData, error) {
+	resp, err := http.Get("http://" + ds.SolrUrl + "admin/system/")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, nil
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	response := SolrSystemResponse{}
+	err = xml.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
+    fmt.Printf("System resp %#v", response)
+
+	return nil, nil
+}
+
 func main() {
 	flag.Parse()
 	/*
@@ -365,10 +404,11 @@ func main() {
 	plugin.AddComponent(component)
 
 	ds := NewMetricsDataSource(*solrUrl, SOLR_CONNECTION_TIMEOUT)
-	d, _ := ds.QueryData()
-	for k, v := range d {
-		fmt.Printf("key:%v, value:%#v\n", k, v)
-	}
+	ds.QueryData()
+	ds.QuerySystemData()
+	//for k, v := range d {
+	//	fmt.Printf("key:%v, value:%#v\n", k, v)
+	//}
 	//fmt.Printf("Error: %v\n, data:%#v\n", err, d)
 	//AddMetrcas(component, ds)
 
