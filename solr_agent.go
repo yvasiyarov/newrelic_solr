@@ -1,15 +1,15 @@
 package main
 
 import (
+	"encoding/xml"
 	"flag"
 	"fmt"
-    "encoding/xml"
-    "net/http"
-    "io/ioutil"
-    "strings"
 	"github.com/yvasiyarov/newrelic_platform_go"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -18,9 +18,9 @@ var newrelicLicense = flag.String("newrelic-license", "", "Newrelic license")
 var verbose = flag.Bool("verbose", false, "Verbose mode")
 
 const (
-	MIN_PAUSE_TIME            = 30 //do not query sphinx often than once in 30 seconds
+	MIN_PAUSE_TIME          = 30 //do not query sphinx often than once in 30 seconds
 	SOLR_CONNECTION_TIMEOUT = 0  //no timeout
-	NEWRELIC_POLL_INTERVAL    = 60 //Send data to newrelic every 60 seconds
+	NEWRELIC_POLL_INTERVAL  = 60 //Send data to newrelic every 60 seconds
 
 	COMPONENT_NAME = "Solr"
 	AGENT_GUID     = "com.github.yvasiyarov.Solr"
@@ -28,80 +28,166 @@ const (
 )
 
 type SolrStatisticData map[string]ISolrHandlerStat
-type ISolrHandlerStat interface{
-    Parse(info *SolrQueryHandlerInfo) error
-    GetName() string
+type ISolrHandlerStat interface {
+	Parse(info *SolrQueryHandlerInfo) error
+	GetName() string
 }
 
 type SolrHandlerStat struct {
-    Requests float64
-    Errors   float64
-    Timeouts float64
-    TotalTime float64
-    AvgTimePerRequest float64
-    AvgRequestsPerSecond float64
-    Name string
-    ClassName string
+	Name      string
+	ClassName string
 }
 
 func (stat *SolrHandlerStat) GetName() string {
-    return stat.Name
+	return stat.Name
 }
 
 type SolrHandlerStatSearch struct {
-    SolrHandlerStat
+	SolrHandlerStat
+	Requests             float64
+	Errors               float64
+	Timeouts             float64
+	TotalTime            float64
+	AvgTimePerRequest    float64
+	AvgRequestsPerSecond float64
 }
 type SolrHandlerStatUpdate struct {
-    SolrHandlerStat
+	SolrHandlerStat
+	Commits                  float64
+	Autocommits              float64
+	Optimizes                float64
+	Rollbacks                float64
+	ExpungeDeletes           float64
+	DocsPending              float64
+	Adds                     float64
+	DeletesById              float64
+	DeletesByQuery           float64
+	Errors                   float64
+	CumulativeAdds           float64
+	CumulativeDeletesById    float64
+	CumulativeDeletesByQuery float64
+	CumulativeErrors         float64
 }
 
-func NewSolrHandlerStat(solrClassName string) ISolrHandlerStat{
-    solrClassName = strings.TrimSpace(solrClassName)
-    switch solrClassName {
-        case "org.apache.solr.handler.component.SearchHandler":{
-            return &SolrHandlerStatSearch{SolrHandlerStat{ClassName: solrClassName}}
-        }
-        case "org.apache.solr.update.DirectUpdateHandler2":{
-            return &SolrHandlerStatUpdate{SolrHandlerStat{ClassName: solrClassName}}
-        }
-    }
-    return nil
+func NewSolrHandlerStat(solrClassName string) ISolrHandlerStat {
+	solrClassName = strings.TrimSpace(solrClassName)
+	switch solrClassName {
+	case "org.apache.solr.handler.component.SearchHandler", "org.apache.solr.handler.XmlUpdateRequestHandler":
+		{
+            return &SolrHandlerStatSearch{SolrHandlerStat: SolrHandlerStat{ClassName: solrClassName}}
+		}
+	case "org.apache.solr.update.DirectUpdateHandler2":
+		{
+            return &SolrHandlerStatUpdate{SolrHandlerStat: SolrHandlerStat{ClassName: solrClassName}}
+		}
+	}
+	return nil
 }
 
 func (stat *SolrHandlerStatSearch) Parse(info *SolrQueryHandlerInfo) error {
-    stat.Name = strings.TrimSpace(info.Name)
-    for _, statItem := range info.Stats {
-        value, err := strconv.ParseFloat(strings.TrimSpace(statItem.Value), 64)
-        if err != nil {
-            return err
-        }
-        switch statItem.Name {
-            case "avgRequestsPerSecond":  {
-                stat.AvgRequestsPerSecond = value
-            }
-            case "avgTimePerRequest":  {
-                stat.AvgTimePerRequest = value
-            }
-            case "totalTime":  {
-                stat.TotalTime = value
-            }
-            case "timeouts":  {
-                stat.Timeouts = value
-            }
-            case "errors":  {
-                stat.Errors = value
-            }
-            case "requests":  {
-                stat.Requests = value
-            }
-        }
-    }
-    return nil
+	stat.Name = strings.TrimSpace(info.Name)
+	for _, statItem := range info.Stats {
+		value, err := strconv.ParseFloat(strings.TrimSpace(statItem.Value), 64)
+		if err != nil {
+			return err
+		}
+		switch statItem.Name {
+		case "avgRequestsPerSecond":
+			{
+				stat.AvgRequestsPerSecond = value
+			}
+		case "avgTimePerRequest":
+			{
+				stat.AvgTimePerRequest = value
+			}
+		case "totalTime":
+			{
+				stat.TotalTime = value
+			}
+		case "timeouts":
+			{
+				stat.Timeouts = value
+			}
+		case "errors":
+			{
+				stat.Errors = value
+			}
+		case "requests":
+			{
+				stat.Requests = value
+			}
+		}
+	}
+	return nil
 }
 
 func (stat *SolrHandlerStatUpdate) Parse(info *SolrQueryHandlerInfo) error {
-    stat.Name = strings.TrimSpace(info.Name)
-    return nil
+	stat.Name = strings.TrimSpace(info.Name)
+	for _, statItem := range info.Stats {
+		value, err := strconv.ParseFloat(strings.TrimSpace(statItem.Value), 64)
+		if err != nil {
+			return err
+		}
+		switch statItem.Name {
+		case "commits":
+			{
+				stat.Commits = value
+			}
+		case "autocommits":
+			{
+				stat.Autocommits = value
+			}
+		case "optimizes":
+			{
+				stat.Optimizes = value
+			}
+		case "rollbacks":
+			{
+				stat.Rollbacks = value
+			}
+		case "expungeDeletes":
+			{
+				stat.ExpungeDeletes = value
+			}
+		case "docsPending":
+			{
+				stat.DocsPending = value
+			}
+		case "adds":
+			{
+				stat.Adds = value
+			}
+		case "deletesById":
+			{
+				stat.DeletesById = value
+			}
+		case "deletesByQuery":
+			{
+				stat.DeletesByQuery = value
+			}
+		case "errors":
+			{
+				stat.Errors = value
+			}
+		case "cumulative_adds":
+			{
+				stat.CumulativeAdds = value
+			}
+		case "cumulative_deletesById":
+			{
+				stat.CumulativeDeletesById = value
+			}
+		case "cumulative_deletesByQuery":
+			{
+				stat.CumulativeDeletesByQuery = value
+			}
+		case "cumulative_errors":
+			{
+				stat.CumulativeErrors = value
+			}
+		}
+	}
+	return nil
 }
 
 type MetricsDataSource struct {
@@ -122,90 +208,87 @@ func NewMetricsDataSource(solrUrl string, connectionTimeout int) *MetricsDataSou
 	return ds
 }
 
-
-
 type SolrResponse struct {
-    SolrInfo SolrInfo `xml:"solr-info"`
+	SolrInfo SolrInfo `xml:"solr-info"`
 }
 type SolrInfo struct {
-    QueryHandler SolrQueryHandler `xml:"QUERYHANDLER"`
+	QueryHandler SolrQueryHandler `xml:"QUERYHANDLER"`
 }
 type SolrQueryHandler struct {
-    QueryHandlerInfo []SolrQueryHandlerInfo `xml:"entry"`
+	QueryHandlerInfo []SolrQueryHandlerInfo `xml:"entry"`
 }
 type SolrQueryHandlerInfo struct {
-     Name string `xml:"name"`
-     ClassName string `xml:"class"`
-     Version string `xml:"version"`
-     Description string `xml:"description"`
-     Stats       []SolrQueryHandlerInfoItem `xml:"stats>stat"`
+	Name        string                     `xml:"name"`
+	ClassName   string                     `xml:"class"`
+	Version     string                     `xml:"version"`
+	Description string                     `xml:"description"`
+	Stats       []SolrQueryHandlerInfoItem `xml:"stats>stat"`
 }
 type SolrQueryHandlerInfoItem struct {
-     Name string `xml:"name,attr"`
-     Value string `xml:",innerxml"`
+	Name  string `xml:"name,attr"`
+	Value string `xml:",innerxml"`
 }
 
 func (ds *MetricsDataSource) QueryData() (SolrStatisticData, error) {
-    resp, err := http.Get("http://" + ds.SolrUrl + "admin/stats.jsp")
+	resp, err := http.Get("http://" + ds.SolrUrl + "admin/stats.jsp")
 
-     if err != nil {
-         return nil, err
-     }
+	if err != nil {
+		return nil, err
+	}
 
-     defer resp.Body.Close()
-     if resp.StatusCode != 200 {
-         return nil, nil
-     }
-     body, err := ioutil.ReadAll(resp.Body)
-     if err != nil {
-         return nil, err
-     }
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, nil
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
-    response := SolrResponse{}
-    err = xml.Unmarshal(body, &response)
-    if err != nil {
-        return nil, err
-    }
+	response := SolrResponse{}
+	err = xml.Unmarshal(body, &response)
+	if err != nil {
+		return nil, err
+	}
 
-    data := make(SolrStatisticData, len(response.SolrInfo.QueryHandler.QueryHandlerInfo))
-    for _, handler := range response.SolrInfo.QueryHandler.QueryHandlerInfo {
-        stat := NewSolrHandlerStat(handler.ClassName)
-        if stat == nil {
-            continue;
-        }
-        err := stat.Parse(&handler)
-        if err != nil {
-            log.Printf("Handler stat parse error:%v. Handler: %#v", err, handler)
-            continue
-        }
-        data[stat.GetName()] = stat
-    }
+	data := make(SolrStatisticData, len(response.SolrInfo.QueryHandler.QueryHandlerInfo))
+	for _, handler := range response.SolrInfo.QueryHandler.QueryHandlerInfo {
+		stat := NewSolrHandlerStat(handler.ClassName)
+		if stat == nil {
+			continue
+		}
+		err := stat.Parse(&handler)
+		if err != nil {
+			log.Printf("Handler stat parse error:%v. Handler: %#v", err, handler)
+			continue
+		}
+		data[stat.GetName()] = stat
+	}
 
-    return data, nil
+	return data, nil
 }
-
 
 func main() {
 	flag.Parse()
-    /*
-	if *newrelicLicense == "" {
-		log.Fatalf("Please, pass a valid newrelic license key.\n Use --help to get more information about available options\n")
-	}
-*/
+	/*
+		if *newrelicLicense == "" {
+			log.Fatalf("Please, pass a valid newrelic license key.\n Use --help to get more information about available options\n")
+		}
+	*/
 	plugin := newrelic_platform_go.NewNewrelicPlugin(AGENT_VERSION, *newrelicLicense, NEWRELIC_POLL_INTERVAL)
 	component := newrelic_platform_go.NewPluginComponent(COMPONENT_NAME, AGENT_GUID)
 	plugin.AddComponent(component)
 
 	ds := NewMetricsDataSource(*solrUrl, SOLR_CONNECTION_TIMEOUT)
-    d, _ := ds.QueryData()
-    for k, v := range d {
-        fmt.Printf("key:%v, value:%#v\n", k, v)
-    }
-    //fmt.Printf("Error: %v\n, data:%#v\n", err, d)
+	d, _ := ds.QueryData()
+	for k, v := range d {
+		fmt.Printf("key:%v, value:%#v\n", k, v)
+	}
+	//fmt.Printf("Error: %v\n, data:%#v\n", err, d)
 	//AddMetrcas(component, ds)
 
-//	plugin.Verbose = *verbose
-//	plugin.Harvest()
+	//	plugin.Verbose = *verbose
+	//	plugin.Harvest()
 	//plugin.Run()
 }
 
@@ -381,4 +464,3 @@ DataKey: "command_search",
 	component.AddMetrica(avgQueryWallTime)
 }
 */
-
