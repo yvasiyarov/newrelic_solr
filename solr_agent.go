@@ -42,6 +42,25 @@ func (stat *SolrHandlerStat) GetName() string {
 	return stat.Name
 }
 
+func NewSolrHandlerStat(solrClassName string) ISolrHandlerStat {
+	solrClassName = strings.TrimSpace(solrClassName)
+	switch solrClassName {
+	case "org.apache.solr.handler.component.SearchHandler", "org.apache.solr.handler.XmlUpdateRequestHandler":
+		{
+			return &SolrHandlerStatSearch{SolrHandlerStat: SolrHandlerStat{ClassName: solrClassName}}
+		}
+	case "org.apache.solr.update.DirectUpdateHandler2":
+		{
+			return &SolrHandlerStatUpdate{SolrHandlerStat: SolrHandlerStat{ClassName: solrClassName}}
+		}
+	case "org.apache.solr.search.LRUCache", "org.apache.solr.search.FastLRUCache":
+		{
+			return &SolrHandlerStatCache{SolrHandlerStat: SolrHandlerStat{ClassName: solrClassName}}
+		}
+	}
+	return nil
+}
+
 type SolrHandlerStatSearch struct {
 	SolrHandlerStat
 	Requests             float64
@@ -50,38 +69,6 @@ type SolrHandlerStatSearch struct {
 	TotalTime            float64
 	AvgTimePerRequest    float64
 	AvgRequestsPerSecond float64
-}
-type SolrHandlerStatUpdate struct {
-	SolrHandlerStat
-	Commits                  float64
-	Autocommits              float64
-	Optimizes                float64
-	Rollbacks                float64
-	ExpungeDeletes           float64
-	DocsPending              float64
-	Adds                     float64
-	DeletesById              float64
-	DeletesByQuery           float64
-	Errors                   float64
-	CumulativeAdds           float64
-	CumulativeDeletesById    float64
-	CumulativeDeletesByQuery float64
-	CumulativeErrors         float64
-}
-
-func NewSolrHandlerStat(solrClassName string) ISolrHandlerStat {
-	solrClassName = strings.TrimSpace(solrClassName)
-	switch solrClassName {
-	case "org.apache.solr.handler.component.SearchHandler", "org.apache.solr.handler.XmlUpdateRequestHandler":
-		{
-            return &SolrHandlerStatSearch{SolrHandlerStat: SolrHandlerStat{ClassName: solrClassName}}
-		}
-	case "org.apache.solr.update.DirectUpdateHandler2":
-		{
-            return &SolrHandlerStatUpdate{SolrHandlerStat: SolrHandlerStat{ClassName: solrClassName}}
-		}
-	}
-	return nil
 }
 
 func (stat *SolrHandlerStatSearch) Parse(info *SolrQueryHandlerInfo) error {
@@ -119,6 +106,24 @@ func (stat *SolrHandlerStatSearch) Parse(info *SolrQueryHandlerInfo) error {
 		}
 	}
 	return nil
+}
+
+type SolrHandlerStatUpdate struct {
+	SolrHandlerStat
+	Commits                  float64
+	Autocommits              float64
+	Optimizes                float64
+	Rollbacks                float64
+	ExpungeDeletes           float64
+	DocsPending              float64
+	Adds                     float64
+	DeletesById              float64
+	DeletesByQuery           float64
+	Errors                   float64
+	CumulativeAdds           float64
+	CumulativeDeletesById    float64
+	CumulativeDeletesByQuery float64
+	CumulativeErrors         float64
 }
 
 func (stat *SolrHandlerStatUpdate) Parse(info *SolrQueryHandlerInfo) error {
@@ -190,6 +195,78 @@ func (stat *SolrHandlerStatUpdate) Parse(info *SolrQueryHandlerInfo) error {
 	return nil
 }
 
+type SolrHandlerStatCache struct {
+	SolrHandlerStat
+	Lookups             float64
+	Hits                float64
+	HitRatio            float64
+	Inserts             float64
+	Evictions           float64
+	Size                float64
+	CumulativeLookups   float64
+	CumulativeHits      float64
+	CumulativeHitRatio  float64
+	CumulativeInserts   float64
+	CumulativeEvictions float64
+}
+
+func (stat *SolrHandlerStatCache) Parse(info *SolrQueryHandlerInfo) error {
+	stat.Name = strings.TrimSpace(info.Name)
+	for _, statItem := range info.Stats {
+		value, err := strconv.ParseFloat(strings.TrimSpace(statItem.Value), 64)
+		if err != nil {
+			return err
+		}
+		switch statItem.Name {
+		case "lookups":
+			{
+				stat.Lookups = value
+			}
+		case "hits":
+			{
+				stat.Hits = value
+			}
+		case "hitratio":
+			{
+				stat.HitRatio = value
+			}
+		case "inserts":
+			{
+				stat.Inserts = value
+			}
+		case "evictions":
+			{
+				stat.Evictions = value
+			}
+		case "size":
+			{
+				stat.Size = value
+			}
+		case "cumulative_lookups":
+			{
+				stat.CumulativeLookups = value
+			}
+		case "cumulative_hits":
+			{
+				stat.CumulativeHits = value
+			}
+		case "cumulative_hitratio":
+			{
+				stat.CumulativeHitRatio = value
+			}
+		case "cumulative_inserts":
+			{
+				stat.CumulativeInserts = value
+			}
+		case "cumulative_evictions":
+			{
+				stat.CumulativeEvictions = value
+			}
+		}
+	}
+	return nil
+}
+
 type MetricsDataSource struct {
 	SolrUrl           string
 	Port              int
@@ -212,8 +289,9 @@ type SolrResponse struct {
 	SolrInfo SolrInfo `xml:"solr-info"`
 }
 type SolrInfo struct {
-	QueryHandler SolrQueryHandler `xml:"QUERYHANDLER"`
+	QueryHandler  SolrQueryHandler `xml:"QUERYHANDLER"`
 	UpdateHandler SolrQueryHandler `xml:"UPDATEHANDLER"`
+	CacheHandler  SolrQueryHandler `xml:"CACHE"`
 }
 type SolrQueryHandler struct {
 	QueryHandlerInfo []SolrQueryHandlerInfo `xml:"entry"`
@@ -252,17 +330,15 @@ func (ds *MetricsDataSource) QueryData() (SolrStatisticData, error) {
 		return nil, err
 	}
 
-    queryHandlersData := parseQueryHandlers(response.SolrInfo.QueryHandler.QueryHandlerInfo)
-    updateHandlerData := parseQueryHandlers(response.SolrInfo.UpdateHandler.QueryHandlerInfo)
-	for k, v := range updateHandlerData {
-		fmt.Printf("key:%v, value:%#v\n", k, v)
-	}
-    
-	return queryHandlersData, nil
+	data := make(SolrStatisticData, len(response.SolrInfo.QueryHandler.QueryHandlerInfo) + len(response.SolrInfo.UpdateHandler.QueryHandlerInfo) + len(response.SolrInfo.CacheHandler.QueryHandlerInfo))
+	parseQueryHandlers(response.SolrInfo.QueryHandler.QueryHandlerInfo, data)
+	parseQueryHandlers(response.SolrInfo.UpdateHandler.QueryHandlerInfo, data)
+	parseQueryHandlers(response.SolrInfo.CacheHandler.QueryHandlerInfo, data)
+
+	return data, nil
 }
 
-func parseQueryHandlers(queryHandlerInfo []SolrQueryHandlerInfo) SolrStatisticData {
-	data := make(SolrStatisticData, len(queryHandlerInfo))
+func parseQueryHandlers(queryHandlerInfo []SolrQueryHandlerInfo, data SolrStatisticData) {
 	for _, handler := range queryHandlerInfo {
 		stat := NewSolrHandlerStat(handler.ClassName)
 		if stat == nil {
@@ -275,7 +351,6 @@ func parseQueryHandlers(queryHandlerInfo []SolrQueryHandlerInfo) SolrStatisticDa
 		}
 		data[stat.GetName()] = stat
 	}
-    return data
 }
 
 func main() {
