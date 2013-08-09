@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/yvasiyarov/newrelic_platform_go"
 	"io/ioutil"
-	"log"
+//	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -27,246 +27,6 @@ const (
 	AGENT_VERSION  = "0.0.1"
 )
 
-type SolrStatisticData map[string]ISolrHandlerStat
-type ISolrHandlerStat interface {
-	Parse(info *SolrQueryHandlerInfo) error
-	GetName() string
-}
-
-type SolrHandlerStat struct {
-	Name      string
-	ClassName string
-}
-
-func (stat *SolrHandlerStat) GetName() string {
-	return stat.Name
-}
-
-func NewSolrHandlerStat(solrClassName string) ISolrHandlerStat {
-	solrClassName = strings.TrimSpace(solrClassName)
-	switch solrClassName {
-	case "org.apache.solr.handler.component.SearchHandler", "org.apache.solr.handler.XmlUpdateRequestHandler":
-		{
-			return &SolrHandlerStatSearch{SolrHandlerStat: SolrHandlerStat{ClassName: solrClassName}}
-		}
-	case "org.apache.solr.update.DirectUpdateHandler2":
-		{
-			return &SolrHandlerStatUpdate{SolrHandlerStat: SolrHandlerStat{ClassName: solrClassName}}
-		}
-	case "org.apache.solr.search.LRUCache", "org.apache.solr.search.FastLRUCache":
-		{
-			return &SolrHandlerStatCache{SolrHandlerStat: SolrHandlerStat{ClassName: solrClassName}}
-		}
-	}
-	return nil
-}
-
-type SolrHandlerStatSearch struct {
-	SolrHandlerStat
-	Requests             float64
-	Errors               float64
-	Timeouts             float64
-	TotalTime            float64
-	AvgTimePerRequest    float64
-	AvgRequestsPerSecond float64
-}
-
-func (stat *SolrHandlerStatSearch) Parse(info *SolrQueryHandlerInfo) error {
-	stat.Name = strings.TrimSpace(info.Name)
-	for _, statItem := range info.Stats {
-		value, err := strconv.ParseFloat(strings.TrimSpace(statItem.Value), 64)
-		if err != nil {
-			return err
-		}
-		switch statItem.Name {
-		case "avgRequestsPerSecond":
-			{
-				stat.AvgRequestsPerSecond = value
-			}
-		case "avgTimePerRequest":
-			{
-				stat.AvgTimePerRequest = value
-			}
-		case "totalTime":
-			{
-				stat.TotalTime = value
-			}
-		case "timeouts":
-			{
-				stat.Timeouts = value
-			}
-		case "errors":
-			{
-				stat.Errors = value
-			}
-		case "requests":
-			{
-				stat.Requests = value
-			}
-		}
-	}
-	return nil
-}
-
-type SolrHandlerStatUpdate struct {
-	SolrHandlerStat
-	Commits                  float64
-	Autocommits              float64
-	Optimizes                float64
-	Rollbacks                float64
-	ExpungeDeletes           float64
-	DocsPending              float64
-	Adds                     float64
-	DeletesById              float64
-	DeletesByQuery           float64
-	Errors                   float64
-	CumulativeAdds           float64
-	CumulativeDeletesById    float64
-	CumulativeDeletesByQuery float64
-	CumulativeErrors         float64
-}
-
-func (stat *SolrHandlerStatUpdate) Parse(info *SolrQueryHandlerInfo) error {
-	stat.Name = strings.TrimSpace(info.Name)
-	for _, statItem := range info.Stats {
-		value, err := strconv.ParseFloat(strings.TrimSpace(statItem.Value), 64)
-		if err != nil {
-			return err
-		}
-		switch statItem.Name {
-		case "commits":
-			{
-				stat.Commits = value
-			}
-		case "autocommits":
-			{
-				stat.Autocommits = value
-			}
-		case "optimizes":
-			{
-				stat.Optimizes = value
-			}
-		case "rollbacks":
-			{
-				stat.Rollbacks = value
-			}
-		case "expungeDeletes":
-			{
-				stat.ExpungeDeletes = value
-			}
-		case "docsPending":
-			{
-				stat.DocsPending = value
-			}
-		case "adds":
-			{
-				stat.Adds = value
-			}
-		case "deletesById":
-			{
-				stat.DeletesById = value
-			}
-		case "deletesByQuery":
-			{
-				stat.DeletesByQuery = value
-			}
-		case "errors":
-			{
-				stat.Errors = value
-			}
-		case "cumulative_adds":
-			{
-				stat.CumulativeAdds = value
-			}
-		case "cumulative_deletesById":
-			{
-				stat.CumulativeDeletesById = value
-			}
-		case "cumulative_deletesByQuery":
-			{
-				stat.CumulativeDeletesByQuery = value
-			}
-		case "cumulative_errors":
-			{
-				stat.CumulativeErrors = value
-			}
-		}
-	}
-	return nil
-}
-
-type SolrHandlerStatCache struct {
-	SolrHandlerStat
-	Lookups             float64
-	Hits                float64
-	HitRatio            float64
-	Inserts             float64
-	Evictions           float64
-	Size                float64
-	CumulativeLookups   float64
-	CumulativeHits      float64
-	CumulativeHitRatio  float64
-	CumulativeInserts   float64
-	CumulativeEvictions float64
-}
-
-func (stat *SolrHandlerStatCache) Parse(info *SolrQueryHandlerInfo) error {
-	stat.Name = strings.TrimSpace(info.Name)
-	for _, statItem := range info.Stats {
-		value, err := strconv.ParseFloat(strings.TrimSpace(statItem.Value), 64)
-		if err != nil {
-			return err
-		}
-		switch statItem.Name {
-		case "lookups":
-			{
-				stat.Lookups = value
-			}
-		case "hits":
-			{
-				stat.Hits = value
-			}
-		case "hitratio":
-			{
-				stat.HitRatio = value
-			}
-		case "inserts":
-			{
-				stat.Inserts = value
-			}
-		case "evictions":
-			{
-				stat.Evictions = value
-			}
-		case "size":
-			{
-				stat.Size = value
-			}
-		case "cumulative_lookups":
-			{
-				stat.CumulativeLookups = value
-			}
-		case "cumulative_hits":
-			{
-				stat.CumulativeHits = value
-			}
-		case "cumulative_hitratio":
-			{
-				stat.CumulativeHitRatio = value
-			}
-		case "cumulative_inserts":
-			{
-				stat.CumulativeInserts = value
-			}
-		case "cumulative_evictions":
-			{
-				stat.CumulativeEvictions = value
-			}
-		}
-	}
-	return nil
-}
-
 type MetricsDataSource struct {
 	SolrUrl           string
 	Port              int
@@ -277,6 +37,86 @@ type MetricsDataSource struct {
 	LastUpdateTime time.Time
 }
 
+type SolrStatisticData map[string]ISolrHandlerStat
+type ISolrHandlerStat interface {
+	Parse(info interface{}) error
+	GetName() string
+    GetValue(key string) float64
+}
+
+type SolrHandlerStat struct {
+	Name      string
+	ClassName string
+    MetricaData map[string]float64
+}
+
+func (stat *SolrHandlerStat) GetName() string {
+	return stat.Name
+}
+
+
+func (stat *SolrHandlerStat) GetValue(key string) float64 {
+    if v, ok := stat.MetricaData[key]; ok {
+        return v
+    }
+    return 0
+}
+
+func (stat *SolrHandlerStat) Parse(handlerInfo interface{}) error {
+    switch info := handlerInfo.(type) {
+        default:
+            return fmt.Errorf("Parse of %#v is not implemented\n")
+        case *SolrSystemResponse: {
+            stat.Name = "Solr"
+            stat.MetricaData = make(map[string]float64, 12)
+            for _, item := range info.Info {
+                itemName := strings.TrimSpace(item.ItemName);
+
+                if itemName == "jvm" {
+                    for _, intValue := range item.MemoryValues {
+                        valueParts := strings.Split(strings.TrimSpace(intValue.Value), " ")
+                        value, err := strconv.ParseFloat(valueParts[0], 64)
+                        if err == nil {
+                            switch valueParts[1] {
+                            case "KB":
+                                value = value * 1024;
+                            case "MB":
+                                value = value * 1024 * 1024;
+                            case "GB":
+                                value = value * 1024 * 1024 * 1024;
+                            }
+                            stat.MetricaData["jvm_memory_" + intValue.Name] = value
+                        }
+                    }
+                }
+                if itemName == "system" {
+                    for _, intValue := range item.IntValues {
+                        value, err := strconv.ParseFloat(strings.TrimSpace(intValue.Value), 64)
+                        if err != nil {
+                            return err
+                        }
+                        stat.MetricaData[intValue.Name] = value
+                    }
+                }
+            }
+            return nil
+        }
+        case *SolrQueryHandlerInfo: {
+            stat.Name = strings.TrimSpace(info.Name)
+            stat.MetricaData = make(map[string]float64, len(info.Stats))
+            for _, statItem := range info.Stats {
+                value, err := strconv.ParseFloat(strings.TrimSpace(statItem.Value), 64)
+                if err != nil {
+                    return err
+                }
+                stat.MetricaData[statItem.Name] = value
+            }
+        }
+    }
+	return nil
+}
+
+
 func NewMetricsDataSource(solrUrl string, connectionTimeout int) *MetricsDataSource {
 	ds := &MetricsDataSource{
 		SolrUrl:           solrUrl,
@@ -285,6 +125,7 @@ func NewMetricsDataSource(solrUrl string, connectionTimeout int) *MetricsDataSou
 	return ds
 }
 
+//Set of structures, used to parse XML response with solr handler statistic
 type SolrResponse struct {
 	SolrInfo SolrInfo `xml:"solr-info"`
 }
@@ -308,6 +149,21 @@ type SolrQueryHandlerInfoItem struct {
 	Value string `xml:",innerxml"`
 }
 
+// Set of structures used to parse XML response with information about OS and JVM
+type SolrSystemResponse struct {
+	Info []SolrSystemInfoItem `xml:"lst"`
+}
+type SolrSystemInfoItem struct {
+    ItemName string `xml:"name,attr"`
+    IntValues []SolrSystemInfoItemValue `xml:"long"`
+    MemoryValues []SolrSystemInfoItemValue `xml:"lst>str"`
+}
+type SolrSystemInfoItemValue struct {
+    Name string `xml:"name,attr"`
+    Value string `xml:",innerxml"`
+}
+
+//Query Solr handlers statistics
 func (ds *MetricsDataSource) QueryData() (SolrStatisticData, error) {
 	resp, err := http.Get("http://" + ds.SolrUrl + "admin/stats.jsp")
 
@@ -330,43 +186,37 @@ func (ds *MetricsDataSource) QueryData() (SolrStatisticData, error) {
 		return nil, err
 	}
 
-	data := make(SolrStatisticData, len(response.SolrInfo.QueryHandler.QueryHandlerInfo) + len(response.SolrInfo.UpdateHandler.QueryHandlerInfo) + len(response.SolrInfo.CacheHandler.QueryHandlerInfo))
+	data := make(SolrStatisticData, len(response.SolrInfo.QueryHandler.QueryHandlerInfo) + len(response.SolrInfo.UpdateHandler.QueryHandlerInfo) + len(response.SolrInfo.CacheHandler.QueryHandlerInfo) + 1)
 	parseQueryHandlers(response.SolrInfo.QueryHandler.QueryHandlerInfo, data)
 	parseQueryHandlers(response.SolrInfo.UpdateHandler.QueryHandlerInfo, data)
 	parseQueryHandlers(response.SolrInfo.CacheHandler.QueryHandlerInfo, data)
 
+    if stat, err := ds.QuerySystemData(); err == nil {
+        data["solr"] = stat
+    }
 	return data, nil
 }
 
+// parse statistic tag blocks
 func parseQueryHandlers(queryHandlerInfo []SolrQueryHandlerInfo, data SolrStatisticData) {
 	for _, handler := range queryHandlerInfo {
-		stat := NewSolrHandlerStat(handler.ClassName)
-		if stat == nil {
-			continue
-		}
+        solrClassName := strings.TrimSpace(handler.ClassName)
+	    if solrClassName != "org.apache.solr.handler.component.SearchHandler" && solrClassName != "org.apache.solr.handler.XmlUpdateRequestHandler" && solrClassName != "org.apache.solr.update.DirectUpdateHandler2" && solrClassName != "org.apache.solr.search.LRUCache" && solrClassName != "org.apache.solr.search.FastLRUCache" {
+        
+                continue
+        }
+
+        stat := &SolrHandlerStat{ClassName: solrClassName}
 		err := stat.Parse(&handler)
 		if err != nil {
-			log.Printf("Handler stat parse error:%v. Handler: %#v", err, handler)
 			continue
 		}
 		data[stat.GetName()] = stat
 	}
 }
 
-type SolrSystemResponse struct {
-	Info []SolrSystemInfoItem `xml:"lst"`
-}
-type SolrSystemInfoItem struct {
-    ItemName string `xml:"name,attr"`
-    IntValues []SolrSystemInfoItemValue `xml:"long"`
-    MemoryValues []SolrSystemInfoItemValue `xml:"lst>str"`
-}
-type SolrSystemInfoItemValue struct {
-    ValueName string `xml:"name,attr"`
-    Value string `xml:",innerxml"`
-}
-
-func (ds *MetricsDataSource) QuerySystemData() (SolrStatisticData, error) {
+//Query solr system information - OS and JVM memory consumption
+func (ds *MetricsDataSource) QuerySystemData() (*SolrHandlerStat, error) {
 	resp, err := http.Get("http://" + ds.SolrUrl + "admin/system/")
 
 	if err != nil {
@@ -387,9 +237,14 @@ func (ds *MetricsDataSource) QuerySystemData() (SolrStatisticData, error) {
 	if err != nil {
 		return nil, err
 	}
-    fmt.Printf("System resp %#v", response)
 
-	return nil, nil
+    stat := &SolrHandlerStat{ClassName: "solr"}
+    err = stat.Parse(&response)
+    if err == nil {
+        return stat, nil
+    }
+
+	return nil, err
 }
 
 func main() {
@@ -404,11 +259,10 @@ func main() {
 	plugin.AddComponent(component)
 
 	ds := NewMetricsDataSource(*solrUrl, SOLR_CONNECTION_TIMEOUT)
-	ds.QueryData()
-	ds.QuerySystemData()
-	//for k, v := range d {
-	//	fmt.Printf("key:%v, value:%#v\n", k, v)
-	//}
+    d, _ := ds.QueryData()
+	for k, v := range d {
+		fmt.Printf("\n\nkey:%v, value:%#v\n", k, v)
+	}
 	//fmt.Printf("Error: %v\n, data:%#v\n", err, d)
 	//AddMetrcas(component, ds)
 
