@@ -146,6 +146,106 @@ var plainMetricas = []*Metrica{
 		Name:  "handler/time_per_request/suggest",
 		Units: "seconds",
 	},
+
+    //Cache hitratio non cumulative
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "hitratio",
+		},
+		Name:  "handler/cache/hitrates/queryResultCache",
+		Units: "seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "hitratio",
+		},
+		Name:  "handler/cache/hitrates/documentCache",
+		Units: "seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "hitratio",
+		},
+		Name:  "handler/cache/hitrates/fieldValueCache",
+		Units: "seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "hitratio",
+		},
+		Name:  "handler/cache/hitrates/filterCache",
+		Units: "seconds",
+	},
+    //Cache hitratio cumulative
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "cumulative_hitratio",
+		},
+		Name:  "handler/cache/hitrates_cumulative/queryResultCache",
+		Units: "seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "cumulative_hitratio",
+		},
+		Name:  "handler/cache/hitrates_cumulative/documentCache",
+		Units: "seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "cumulative_hitratio",
+		},
+		Name:  "handler/cache/hitrates_cumulative/fieldValueCache",
+		Units: "seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "cumulative_hitratio",
+		},
+		Name:  "handler/cache/hitrates_cumulative/filterCache",
+		Units: "seconds",
+	},
+    //Cache size
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "size",
+		},
+		Name:  "handler/cache/size/queryResultCache",
+		Units: "seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "size",
+		},
+		Name:  "handler/cache/size/documentCache",
+		Units: "seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "size",
+		},
+		Name:  "handler/cache/size/fieldValueCache",
+		Units: "seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "size",
+		},
+		Name:  "handler/cache/size/filterCache",
+		Units: "seconds",
+	},
 }
 
 //Incremental metricas
@@ -339,5 +439,277 @@ var incrementalMetricas = []*Metrica{
 		},
 		Name:  "DirectUpdateHandler2/cumulative_deletesByQuery",
 		Units: "requests/seconds",
+	},
+
+    //queryResultCache detail metrics
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "lookups",
+		},
+		Name:  "handler/cache/queryResultCache/lookups",
+		Units: "request/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "hits",
+		},
+		Name:  "handler/cache/queryResultCache/hits",
+		Units: "hits/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "inserts",
+		},
+		Name:  "handler/cache/queryResultCache/inserts",
+		Units: "inserts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "evictions",
+		},
+		Name:  "handler/cache/queryResultCache/evictions",
+		Units: "evictions/seconds",
+	},
+
+    //queryResultCache cumulative detail metrics
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "cumulative_lookups",
+		},
+		Name:  "handler/cache/queryResultCache/cumulative_lookups",
+		Units: "request/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "cumulative_hits",
+		},
+		Name:  "handler/cache/queryResultCache/cumulative_hits",
+		Units: "hits/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "cumulative_inserts",
+		},
+		Name:  "handler/cache/queryResultCache/cumulative_inserts",
+		Units: "inserts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "queryResultCache",
+			KeyInsideStatBlock: "cumulative_evictions",
+		},
+		Name:  "handler/cache/queryResultCache/cumulative_evictions",
+		Units: "evictions/seconds",
+	},
+
+    //documentCache detail metrics
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "lookups",
+		},
+		Name:  "handler/cache/documentCache/lookups",
+		Units: "request/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "hits",
+		},
+		Name:  "handler/cache/documentCache/hits",
+		Units: "hits/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "inserts",
+		},
+		Name:  "handler/cache/documentCache/inserts",
+		Units: "inserts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "evictions",
+		},
+		Name:  "handler/cache/documentCache/evictions",
+		Units: "evictions/seconds",
+	},
+
+    //documentCache cumulative detail metrics
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "cumulative_lookups",
+		},
+		Name:  "handler/cache/documentCache/cumulative_lookups",
+		Units: "request/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "cumulative_hits",
+		},
+		Name:  "handler/cache/documentCache/cumulative_hits",
+		Units: "hits/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "cumulative_inserts",
+		},
+		Name:  "handler/cache/documentCache/cumulative_inserts",
+		Units: "inserts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "documentCache",
+			KeyInsideStatBlock: "cumulative_evictions",
+		},
+		Name:  "handler/cache/documentCache/cumulative_evictions",
+		Units: "evictions/seconds",
+	},
+
+    //fieldValueCache detail metrics
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "lookups",
+		},
+		Name:  "handler/cache/fieldValueCache/lookups",
+		Units: "request/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "hits",
+		},
+		Name:  "handler/cache/fieldValueCache/hits",
+		Units: "hits/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "inserts",
+		},
+		Name:  "handler/cache/fieldValueCache/inserts",
+		Units: "inserts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "evictions",
+		},
+		Name:  "handler/cache/fieldValueCache/evictions",
+		Units: "evictions/seconds",
+	},
+
+    //fieldValueCache cumulative detail metrics
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "cumulative_lookups",
+		},
+		Name:  "handler/cache/fieldValueCache/cumulative_lookups",
+		Units: "request/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "cumulative_hits",
+		},
+		Name:  "handler/cache/fieldValueCache/cumulative_hits",
+		Units: "hits/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "cumulative_inserts",
+		},
+		Name:  "handler/cache/fieldValueCache/cumulative_inserts",
+		Units: "inserts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "fieldValueCache",
+			KeyInsideStatBlock: "cumulative_evictions",
+		},
+		Name:  "handler/cache/fieldValueCache/cumulative_evictions",
+		Units: "evictions/seconds",
+	},
+
+    //filterCache detail metrics
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "lookups",
+		},
+		Name:  "handler/cache/filterCache/lookups",
+		Units: "request/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "hits",
+		},
+		Name:  "handler/cache/filterCache/hits",
+		Units: "hits/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "inserts",
+		},
+		Name:  "handler/cache/filterCache/inserts",
+		Units: "inserts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "evictions",
+		},
+		Name:  "handler/cache/filterCache/evictions",
+		Units: "evictions/seconds",
+	},
+
+    //filterCache cumulative detail metrics
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "cumulative_lookups",
+		},
+		Name:  "handler/cache/filterCache/cumulative_lookups",
+		Units: "request/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "cumulative_hits",
+		},
+		Name:  "handler/cache/filterCache/cumulative_hits",
+		Units: "hits/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "cumulative_inserts",
+		},
+		Name:  "handler/cache/filterCache/cumulative_inserts",
+		Units: "inserts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "filterCache",
+			KeyInsideStatBlock: "cumulative_evictions",
+		},
+		Name:  "handler/cache/filterCache/cumulative_evictions",
+		Units: "evictions/seconds",
 	},
 }
