@@ -191,4 +191,46 @@ var incrementalMetricas = []*Metrica{
 		Name:  "handler/errors/suggest",
 		Units: "errors/seconds",
 	},
+
+	//timeouts  
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "spell",
+			KeyInsideStatBlock: "timeouts",
+		},
+		Name:  "handler/timeouts/spell",
+		Units: "timeouts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "/update",
+			KeyInsideStatBlock: "timeouts",
+		},
+		Name:  "handler/timeouts/update",
+		Units: "timeouts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "org.apache.solr.handler.XmlUpdateRequestHandler",
+			KeyInsideStatBlock: "timeouts",
+		},
+		Name:  "handler/timeouts/org.apache.solr.handler.XmlUpdateRequestHandler",
+		Units: "timeouts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "standard",
+			KeyInsideStatBlock: "timeouts",
+		},
+		Name:  "handler/timeouts/standard",
+		Units: "timeouts/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "/suggest",
+			KeyInsideStatBlock: "timeouts",
+		},
+		Name:  "handler/timeouts/suggest",
+		Units: "timeouts/seconds",
+	},
 }
