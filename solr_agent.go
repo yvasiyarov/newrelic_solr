@@ -49,6 +49,7 @@ func main() {
 	if *newrelicLicense == "" {
 		log.Fatalf("Please, pass a valid newrelic license key.\n Use --help to get more information about available options\n")
 	}
+    log.Printf("Total metrics:%d\n", len(plainMetricas) + len(incrementalMetricas))
 
 	plugin := newrelic_platform_go.NewNewrelicPlugin(AGENT_VERSION, *newrelicLicense, NEWRELIC_POLL_INTERVAL)
 	component := newrelic_platform_go.NewPluginComponent(COMPONENT_NAME, AGENT_GUID)
@@ -59,6 +60,5 @@ func main() {
 	addMetrcasToComponent(component, incrementalMetricasBuilder(incrementalMetricas, ds))
 
 	plugin.Verbose = *verbose
-	//	plugin.Harvest()
 	plugin.Run()
 }

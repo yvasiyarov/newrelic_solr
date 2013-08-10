@@ -191,6 +191,23 @@ var incrementalMetricas = []*Metrica{
 		Name:  "handler/errors/suggest",
 		Units: "errors/seconds",
 	},
+    //update handler errors
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "errors",
+		},
+		Name:  "handler/errors/DirectUpdateHandler2",
+		Units: "errors/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "cumulative_errors",
+		},
+		Name:  "handler/errors/DirectUpdateHandler2 cumulative errors",
+		Units: "errors/seconds",
+	},
 
 	//timeouts  
 	&Metrica{
@@ -232,5 +249,95 @@ var incrementalMetricas = []*Metrica{
 		},
 		Name:  "handler/timeouts/suggest",
 		Units: "timeouts/seconds",
+	},
+
+    //Direct updates handler metrics
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "commits",
+		},
+		Name:  "DirectUpdateHandler2/commits",
+		Units: "requests/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "autocommits",
+		},
+		Name:  "DirectUpdateHandler2/autocommits",
+		Units: "requests/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "optimizes",
+		},
+		Name:  "DirectUpdateHandler2/optimizes",
+		Units: "requests/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "rollbacks",
+		},
+		Name:  "DirectUpdateHandler2/rollbacks",
+		Units: "requests/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "expungeDeletes",
+		},
+		Name:  "DirectUpdateHandler2/expungeDeletes",
+		Units: "requests/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "adds",
+		},
+		Name:  "DirectUpdateHandler2/adds",
+		Units: "requests/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "deletesById",
+		},
+		Name:  "DirectUpdateHandler2/deletesById",
+		Units: "requests/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "deletesByQuery",
+		},
+		Name:  "DirectUpdateHandler2/deletesByQuery",
+		Units: "requests/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "cumulative_adds",
+		},
+		Name:  "DirectUpdateHandler2/cumulative_adds",
+		Units: "requests/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "cumulative_deletesById",
+		},
+		Name:  "DirectUpdateHandler2/cumulative_deletesById",
+		Units: "requests/seconds",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "updateHandler",
+			KeyInsideStatBlock: "cumulative_deletesByQuery",
+		},
+		Name:  "DirectUpdateHandler2/cumulative_deletesByQuery",
+		Units: "requests/seconds",
 	},
 }
