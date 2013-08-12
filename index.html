@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Newrelic solr by yvasiyarov</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/yvasiyarov/newrelic_solr">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/yvasiyarov/newrelic_solr/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/yvasiyarov/newrelic_solr/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Newrelic solr</h1>
+          <p>Solr monitoring agent for NewRelic</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/yvasiyarov">yvasiyarov</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a name="solr-monitoring-agent-for-newrelic" class="anchor" href="#solr-monitoring-agent-for-newrelic"><span class="octicon octicon-link"></span></a>Solr monitoring agent for NewRelic</h1>
+
+<p><a href="https://travis-ci.org/yvasiyarov/newrelic_solr"><img src="https://travis-ci.org/yvasiyarov/newrelic_solr.png" alt="Build Status"></a></p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>If you have not Go compiler in your system:<br><code>sudo apt-get install golang</code>  </p>
+
+<p>Install dependencies:<br><code>sudo go get github.com/yvasiyarov/newrelic_platform_go</code>   </p>
+
+<p>Get and build agent:<br><code>git clone https://github.com/yvasiyarov/newrelic_solr.git   
+cd newrelic_solr   
+go build -o solr_agent</code>   </p>
+
+<p>Run agent in debug mode:<br><code>./solr_agent --verbose=true --solr-url="127.0.0.1:8080/" --newrelic-license=[your newrelic license key]</code>   </p>
+
+<p>In production mode you can run it with nohup:<br><code>nohup ./sphinx_agent --solr-url="127.0.0.1:8080/" --newrelic-license=[your newrelic license key]</code>  </p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
