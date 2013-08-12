@@ -36,7 +36,7 @@ var plainMetricas = []*Metrica{
 			StatBlockKey:       "solr",
 			KeyInsideStatBlock: "jvm_memory_used",
 		},
-		Name:  "solr/memory/JVM memory used",
+		Name:  "solr/memory/jvm/used",
 		Units: "bytes",
 	},
 	&Metrica{
@@ -44,7 +44,7 @@ var plainMetricas = []*Metrica{
 			StatBlockKey:       "solr",
 			KeyInsideStatBlock: "jvm_memory_free",
 		},
-		Name:  "solr/memory/JVM memory free",
+		Name:  "solr/memory/jvm/free",
 		Units: "bytes",
 	},
 	&Metrica{
@@ -52,7 +52,7 @@ var plainMetricas = []*Metrica{
 			StatBlockKey:       "solr",
 			KeyInsideStatBlock: "jvm_memory_total",
 		},
-		Name:  "solr/memory/JVM memory total",
+		Name:  "solr/memory/jvm/total",
 		Units: "bytes",
 	},
 	&Metrica{
@@ -60,7 +60,23 @@ var plainMetricas = []*Metrica{
 			StatBlockKey:       "solr",
 			KeyInsideStatBlock: "freePhysicalMemorySize",
 		},
-		Name:  "solr/memory/Free Physical Memory Size",
+		Name:  "solr/memory/system/free",
+		Units: "bytes",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "solr",
+			KeyInsideStatBlock: "totalPhysicalMemorySize",
+		},
+		Name:  "solr/memory/system/total",
+		Units: "bytes",
+	},
+	&Metrica{
+		DataKey: &MetricaDataKey{
+			StatBlockKey:       "solr",
+			KeyInsideStatBlock: "committedVirtualMemorySize",
+		},
+		Name:  "solr/memory/system/commited virtual",
 		Units: "bytes",
 	},
 
@@ -220,7 +236,7 @@ var plainMetricas = []*Metrica{
 			KeyInsideStatBlock: "size",
 		},
 		Name:  "handler/cache/size/queryResultCache",
-		Units: "seconds",
+		Units: "items",
 	},
 	&Metrica{
 		DataKey: &MetricaDataKey{
@@ -228,7 +244,7 @@ var plainMetricas = []*Metrica{
 			KeyInsideStatBlock: "size",
 		},
 		Name:  "handler/cache/size/documentCache",
-		Units: "seconds",
+		Units: "items",
 	},
 	&Metrica{
 		DataKey: &MetricaDataKey{
@@ -236,7 +252,7 @@ var plainMetricas = []*Metrica{
 			KeyInsideStatBlock: "size",
 		},
 		Name:  "handler/cache/size/fieldValueCache",
-		Units: "seconds",
+		Units: "items",
 	},
 	&Metrica{
 		DataKey: &MetricaDataKey{
@@ -244,7 +260,7 @@ var plainMetricas = []*Metrica{
 			KeyInsideStatBlock: "size",
 		},
 		Name:  "handler/cache/size/filterCache",
-		Units: "seconds",
+		Units: "items",
 	},
 }
 

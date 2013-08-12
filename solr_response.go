@@ -76,9 +76,9 @@ func (stat *SolrHandlerStat) Parse(handlerInfo interface{}) error {
 			stat.MetricaData = make(map[string]float64, len(info.Stats))
 			for _, statItem := range info.Stats {
 				value, err := strconv.ParseFloat(strings.TrimSpace(statItem.Value), 64)
-				if err != nil {
+				if err == nil {
                     stat.MetricaData[statItem.Name] = value
-				}
+                }
 			}
 		}
 	}
